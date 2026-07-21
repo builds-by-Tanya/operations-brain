@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Byte-compiled
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large generated files (regenerate with python generate_demo_pdfs.py)
+demo-documents/
+
+# Encoding fix script (internal tool)
+fix_encoding.py
+
+# Log files
+*.log

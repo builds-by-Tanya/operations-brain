@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operations Brain — Industrial Knowledge Intelligence Platform</title>
+  <meta name="description" content="AI-powered Industrial Knowledge Intelligence Platform. RAG-powered document intelligence, knowledge graphs, predictive maintenance, and regulatory compliance for asset-intensive industries.">
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- External CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+
+  <!-- Data Layer -->
+  <script src="data/demo-corpus.js"></script>
+  <script src="data/equipment-data.js"></script>
+  <script src="data/compliance-data.js"></script>
+
+  <!-- Knowledge Graph Engine -->
+  <script src="knowledge-graph.js"></script>
+
+  <style>
+    /* Hero loading screen */
+    #loading-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #050A12;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+    .loader-logo {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #00D4FF, #0080FF);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; margin-bottom: 24px;
+      box-shadow: 0 0 60px rgba(0,212,255,0.4);
+      animation: float 3s ease-in-out infinite;
+    }
+    .loader-title { font-size: 28px; font-weight: 800; color: #E8F4FD; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .loader-sub { font-size: 14px; color: #7B93B0; margin-bottom: 40px; }
+    .loader-bar { width: 300px; height: 3px; background: #0F1929; border-radius: 2px; overflow: hidden; }
+    .loader-bar-fill { height: 100%; background: linear-gradient(90deg, #00D4FF, #0080FF); border-radius: 2px; animation: loader-grow 2s ease forwards; }
+    .loader-steps { margin-top: 20px; font-size: 12px; color: #445B75; text-align: center; }
+    @keyframes loader-grow { 0% { width: 0; } 100% { width: 100%; } }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+
+    /* Particle background */
+    #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: rgba(0,212,255,0.3); animation: particle-float linear infinite; }
+    @keyframes particle-float { 0% { transform: translateY(100vh) translateX(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100px) translateX(20px); opacity: 0; } }
+  </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loader-logo">⚙️</div>
+  <div class="loader-title">Operations Brain</div>
+  <div class="loader-sub">Industrial Knowledge Intelligence Platform</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="loader-steps" id="loader-step">Initialising AI systems…</div>
+</div>
+
+<!-- Particle Background -->
+<div id="particles"></div>
+
+<!-- Tooltip for Knowledge Graph -->
+<div id="kg-tooltip"></div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- App Shell -->
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <nav class="sidebar" id="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚙️</div>
+      <div class="logo-text">
+        <div class="logo-title">Operations Brain</div>
+        <div class="logo-sub">Knowledge Intelligence</div>
+      </div>
+    </div>
+
+    <div class="sidebar-facility">
+      <div class="fac-label">Active Facility</div>
+      <div class="fac-name">Bharat Petroleum Refinery</div>
+      <div class="fac-status"><span class="fac-dot"></span>Live · Jamnagar Unit II</div>
+    </div>
+
+    <div class="nav-section-label">Core Modules</div>
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <div class="nav-link active" data-module="dashboard" id="nav-dashboard">
+          <span class="nav-icon">🏠</span>
+          <span>Dashboard</span>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div class="nav-link" data-module="ingestion" id="nav-ingestion">
+          <span class="nav-icon">📄</span>
+          <span>Document Ingestion</span>
+          <span class="nav-badge amber">1,723</span>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div class="nav-link" data-module="copilot" id="nav-copilot">
+          <span class="nav-icon">🤖</span>
+          <span>Expert Copilot</span>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div class="nav-link" data-module="maintenance" id="nav-maintenance">
+          <span class="nav-icon">🔧</span>
+          <span>Maintenance Intel.</span>
+          <span class="nav-badge">2</span>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div class="nav-link" data-module="compliance" id="nav-compliance">
+          <span class="nav-icon">🛡️</span>
+          <span>Compliance & Quality</span>
+          <span class="nav-badge">3</span>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div class="nav-link" data-module="lessons" id="nav-lessons">
+          <span class="nav-icon">💡</span>
+          <span>Lessons Learned</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="nav-section-label">System</div>
+    <ul class="nav-menu" style="flex:0">
+      <li class="nav-item">
+        <div class="nav-link" onclick="showToast('Architecture diagram: RAG + Knowledge Graph + Gemini 2.0 Flash · Microservices ready', 'info')">
+          <span class="nav-icon">🏗️</span>
+          <span>Architecture</span>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div class="nav-link" onclick="showToast('System healthy · API latency: 284ms · Vector DB: 99.9% uptime', 'success')">
+          <span class="nav-icon">⚡</span>
+          <span>System Status</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-stats">
+        <div class="sidebar-stat">
+          <div class="ss-val">1,723</div>
+          <div class="ss-lbl">Docs Indexed</div>
+        </div>
+        <div class="sidebar-stat">
+          <div class="ss-val" id="live-time">--:--</div>
+          <div class="ss-lbl">Local Time</div>
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar">RM</div>
+        <div class="user-info">
+          <div class="user-name">Rajan Mehta</div>
+          <div class="user-role">Sr. Process Engineer</div>
+        </div>
+      </div>
+    </div>
+
+  </nav><!-- /sidebar -->
+
+  <!-- ── MAIN WRAPPER ──────────────────────────────────────── -->
+  <div class="main-wrapper">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <!-- Mobile menu btn (hidden on desktop) -->
+        <button class="icon-btn" id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none">☰</button>
+        <div class="topbar-breadcrumb">
+          <span class="bc-root">Operations Brain</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-current" id="breadcrumb-current">Dashboard</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-indicator">
+          <div class="live-dot"></div>
+          <span>Live</span>
+        </div>
+        <div class="topbar-kpi">
+          <span class="kpi-val" style="color:var(--green)">92.4%</span>
+          <span class="kpi-lbl">Compliance</span>
+        </div>
+        <div class="topbar-kpi">
+          <span class="kpi-val" style="color:var(--amber)">3</span>
+          <span class="kpi-lbl">Gaps</span>
+        </div>
+        <div class="topbar-kpi">
+          <span class="kpi-val" style="color:var(--teal)">1,723</span>
+          <span class="kpi-lbl">Docs</span>
+        </div>
+        <button class="icon-btn alert" title="3 compliance alerts" onclick="navigate('compliance')">🔔</button>
+        <button class="icon-btn" title="Settings" onclick="showToast('Settings panel — enterprise configuration', 'info')">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Main Content (module rendered here) -->
+    <main id="main-content" style="transition:opacity 0.3s ease, transform 0.3s ease">
+      <!-- Dynamically rendered by app.js -->
+    </main>
+
+  </div><!-- /main-wrapper -->
+
+</div><!-- /app-shell -->
+
+<!-- App Controller -->
+<script src="app.js"></script>
+
+<script>
+  // ── Loading Screen ───────────────────────────────────────────
+  const loadingSteps = [
+    'Initialising AI systems…',
+    'Loading document corpus (1,723 docs)…',
+    'Connecting to Gemini 2.0 Flash…',
+    'Building knowledge graph (4,219 nodes)…',
+    'Calibrating compliance engine…',
+    'Operations Brain online ✅'
+  ];
+  let stepIdx = 0;
+  const stepEl = document.getElementById('loader-step');
+  const stepInterval = setInterval(() => {
+    stepIdx++;
+    if (stepIdx < loadingSteps.length) {
+      if (stepEl) stepEl.textContent = loadingSteps[stepIdx];
+    } else {
+      clearInterval(stepInterval);
+      const screen = document.getElementById('loading-screen');
+      if (screen) { screen.style.opacity = '0'; setTimeout(() => screen.remove(), 800); }
+    }
+  }, 350);
+
+  // ── Particle Background ──────────────────────────────────────
+  const particlesContainer = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*8}s;opacity:${0.2+Math.random()*0.4};width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;
+    particlesContainer.appendChild(p);
+  }
+
+  // ── Mobile Sidebar Toggle ───────────────────────────────────
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  if (window.innerWidth <= 768 && sidebarToggle) sidebarToggle.style.display = 'flex';
+  window.addEventListener('resize', () => {
+    if (sidebarToggle) sidebarToggle.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  });
+</script>
+</body>
+</html>
